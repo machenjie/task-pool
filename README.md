@@ -1,5 +1,5 @@
 # task-pool
-Pool to run tasks, support cluster mode or thread mode!
+Pool to run tasks, support cluster mode and thread mode!
 
 If need to use thread mode, please use the **--experimental-worker** flag to run correctly, since this resource still experimental in NodeJs.
 
@@ -20,25 +20,25 @@ $ npm install @mcjxy/task-pool [--save]
 ## Examples
 [test.js](https://github.com/machenjie/task-pool/blob/master/test/test.js)
 ```
-const ThreadPool = require('@mcjxy/task-pool');
+const TaskPool = require('@mcjxy/task-pool');
 const path = require('path');
 
-const threadPool = new ThreadPool(9, 200);
+const taskPool = new TaskPool(9, 200);
 (async () => {
   for (let i = 0; i < 200; i++) {
-    threadPool.dispatch(path.resolve(__dirname, './task.js'), i).then(v => {
+    taskPool.dispatch(path.resolve(__dirname, './task.js'), i).then(v => {
       console.log('main: data ', v);
     }).catch(e => {
       console.log(e);
     });
   }
-  await threadPool.wait();
+  await taskPool.wait();
 
   for (let i = 0; i < 1000; i++) {
-    threadPool.dispatch(path.resolve(__dirname, './task.js'), i);
+    taskPool.dispatch(path.resolve(__dirname, './task.js'), i);
   }
   console.log('start cancel', (new Date()).toISOString());
-  await threadPool.cancel();
+  await taskPool.cancel();
   console.log('end cancel', (new Date()).toISOString());
 })();
 ```
@@ -48,7 +48,7 @@ Note: In thread mode, each thread has a separate global data
 ## API
 
 ### TaskPool(workerNum, maxRunningTask, type)
-the constructor, after you call this, thread pool are ready
+the constructor, after you call this, task pool are ready
 - `workerNum` :  integer Worker number of the pool. default is cpu number
 - `maxRunningTask` : integer Max running tasks of all threads. 0 for unlimited. default is 0
 - `type` :  string Type of task pool mode, support 'cluster' and 'thread'. default is cluster

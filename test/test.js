@@ -1,27 +1,27 @@
 'use strict';
 
-const ClusterPool = require('../src/task-pool');
+const TaskPool = require('../src/task-pool');
 const path = require('path');
 
-const clusterPool = new ClusterPool(2, 200, 'thread');
+const taskPool = new TaskPool(2, 200, 'thread');
 (async () => {
   for (let i = 0; i < 10; i++) {
-    clusterPool.dispatch(path.resolve(__dirname, 'task.js'), i).then(v => {
+    taskPool.dispatch(path.resolve(__dirname, 'task.js'), i).then(v => {
       console.log('main: data ', v);
     }).catch(e => {
       console.log('error:', e);
     });
   }
   try {
-    await clusterPool.wait(10000);
+    await taskPool.wait(10000);
   } catch (e) {
     console.log(e);
   }
 
-  // for (let i = 0; i < 1000; i++) {
-  //   clusterPool.dispatch(path.resolve(__dirname, './task.js'), i);
-  // }
-  // console.log('start cancel', (new Date()).toISOString());
-  // await clusterPool.cancel();
-  // console.log('end cancel', (new Date()).toISOString());
+  for (let i = 0; i < 1000; i++) {
+    taskPool.dispatch(path.resolve(__dirname, './task.js'), i);
+  }
+  console.log('start cancel', (new Date()).toISOString());
+  await taskPool.cancel();
+  console.log('end cancel', (new Date()).toISOString());
 })();
