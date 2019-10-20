@@ -16,19 +16,19 @@ class TaskPool {
     this.type = type;
     this.threadNum = threadNum ? threadNum : cpuNum;
     this.maxRunningTask = maxRunningTask;
-    this.workers = new Workers();
     this.queue = [];
     this.canceling = false;
-    this.waiting = false;
     this.waitingWN = new WaitNotify();
     this.resultEE = new EventEmitter();
     this.isInit = false;
+    this.isIniting = false;
+    this.workers = new Workers();
     this.initWN = new WaitNotify();
-    this._init();
+    this.start();
   }
 
   async init(timeout = 0) {
-    if (!this.isInit) {
+    if (!this.isInit && this.isIniting) {
       await this.initWN.wait(timeout);
     }
   }
@@ -62,11 +62,50 @@ class TaskPool {
     if (this.workers.runningTasksCount === 0 && this.queue.length === 0) {
       return;
     }
-    this.waiting = true;
-    try {
-      await this.waitingWN.wait(timeout);
-    } finally {
-      this.waiting = false;
+    await this.waitingWN.wait(timeout);
+  }
+
+  async terminate(timeout = 0) {
+    await this.init(timeout);
+    if (this.isInit) {
+      this.queue = [];
+      this.canceling = true;
+      this.isInit = false;
+      this.isIniting = false;
+      this.workers.terminate();
+      this.workers = new Workers();
+      this.waitingWN.notify();
+      this.canceling = false;
+    }
+  }
+
+  start() {
+    if (!this.isInit && !this.isIniting) {
+      this.isIniting = true;
+      for (let index = 0; index < this.threadNum; index++) {
+        const worker = Worker.spawn(this.type);
+        const workerID = worker.id;
+        worker.on('exit', () => {
+          this._removeWorker(workerID);
+        });
+        worker.on('error', () => {
+          this._removeWorker(workerID);
+        });
+        worker.on('disconnect', () => {
+          this._removeWorker(workerID);
+        });
+        worker.on('message', result => {
+          this._receiveResult(result);
+        });
+        worker.on('online', () => {
+          if (!this.isInit && this.isIniting && this.workers.count + 1 >= this.threadNum) {
+            this.initWN.notify();
+            this.isInit = true;
+            this.isIniting = false;
+          }
+          this._addWorker(worker);
+        });
+      }
     }
   }
 
@@ -95,7 +134,7 @@ class TaskPool {
         this.resultEE.emit(task.msgID, new Result(Msg.MSG_RUN_ERROR, undefined, 'worker ' + workerID + ' being removed', task.msgID, task.workerID));
       });
     }
-    if (this.workers.runningTasksCount === 0 && this.queue.length === 0 && this.waiting) {
+    if (this.workers.runningTasksCount === 0 && this.queue.length === 0) {
       this.waitingWN.notify();
     }
     this._next();
@@ -116,36 +155,10 @@ class TaskPool {
     const worker = this.workers.getWorkerByID(result.workerID);
     if (worker) {
       worker.receiveResult(result);
-      if (this.workers.runningTasksCount === 0 && this.queue.length === 0 && this.waiting) {
+      if (this.workers.runningTasksCount === 0 && this.queue.length === 0) {
         this.waitingWN.notify();
       }
       this._next();
-    }
-  }
-
-  _init() {
-    for (let index = 0; index < this.threadNum; index++) {
-      const worker = Worker.spawn(this.type);
-      const workerID = worker.id;
-      worker.on('exit', () => {
-        this._removeWorker(workerID);
-      });
-      worker.on('error', () => {
-        this._removeWorker(workerID);
-      });
-      worker.on('disconnect', () => {
-        this._removeWorker(workerID);
-      });
-      worker.on('message', result => {
-        this._receiveResult(result);
-      });
-      worker.on('online', () => {
-        if (!this.isInit && this.workers.count + 1 >= this.threadNum) {
-          this.initWN.notify();
-          this.isInit = true;
-        }
-        this._addWorker(worker);
-      });
     }
   }
 }

@@ -12,7 +12,6 @@ module.exports = async (id, data) => {
       } catch (e) {
         reject(e);
       }
-      console.log('worker', id, ': data', data, 'count:', count++);
       resolve(data);
     }, 1000);
   });

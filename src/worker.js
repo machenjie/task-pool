@@ -66,6 +66,14 @@ class Worker {
     this._runningTasks = this._runningTasks.filter(task => task.msgID !== result.msgID);
   }
 
+  terminate() {
+    if (this._type === WorkerType.WORKER_TYPE_CLUSTER) {
+      this._worker.kill();
+    } else if (this._type === WorkerType.WORKER_TYPE_THREAD) {
+      this._worker.terminate();
+    }
+  }
+
   on(...args) {
     this._worker.on(...args);
   }

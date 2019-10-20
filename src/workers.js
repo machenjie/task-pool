@@ -45,6 +45,12 @@ class Workers {
       return this._workers[workerIndex];
     }
   }
+
+  terminate() {
+    for (const worker of this._workers) {
+      worker.terminate();
+    }
+  }
 }
 
 module.exports = Workers;

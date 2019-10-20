@@ -74,6 +74,15 @@ cancel the tasks which are not running, and wait until all the running tasks run
 - `timeout` :  integer The max time to wait in second. default is infinite.
 - `return` : promise Wait cancel run end, or catch the timeout error
 
+### TaskPool.terminate(timeout)
+terminate all the workers, thread or cluster will be killed
+- `timeout` :  integer The max time to wait in second. default is infinite.
+- `return` : promise Wait terminate run end, or catch the timeout error
+
+### TaskPool.start()
+start the task pool workers. You can call TaskPool.init(timeout) function to wait the start end. Unless you call the terminate function, otherwise it will take no effect when you call this function
+
+
 ## License
 
 The project is licensed under the MIT License. See the [LICENSE](https://github.com/machenjie/task-pool/blob/master/LICENSE) file for more details
