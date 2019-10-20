@@ -60,7 +60,7 @@ wait until pool init end. You don't need to call this function unless you want y
 
 ### TaskPool.dispatch(file, ...args)
 dispatch a task, the tasks will add to the queue until any worker can run the task
-- `file` :  string Javascript absolute file path, it should export a function which accept two parameter, method(threadID, ...args)
+- `file` :  string Javascript absolute file path, it should export a function which accept two parameter, method(id, ...args), id for the worker id, args for the args input
 - `args` : A list of args which will be trans to the method of the js file
 - `return` : promise<any> You can use this to get task return data
 
