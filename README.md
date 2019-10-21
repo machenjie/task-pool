@@ -53,44 +53,44 @@ Note: In thread mode and cluster mode, each thread or cluster has a separate glo
 
 ### TaskPool(workerNum, maxRunningTask, type)
 the constructor, after you call this, task pool are ready
-- `workerNum` :  integer Worker number of the pool. default is cpu number
-- `maxRunningTask` : integer Max running tasks of all threads. 0 for unlimited. default is 0
-- `type` :  string Type of task pool mode, support 'cluster', 'thread' and 'normal''. default is 'cluster'. 'normal' mode use current thread to run task, you can use this mode to mange the tasks
+- `workerNum` :  <integer> Worker number of the pool. default is cpu number
+- `maxRunningTask` : <integer> Max running tasks of all threads. 0 for unlimited. default is 0
+- `type` :  <string> Type of task pool mode, support 'cluster', 'thread' and 'normal''. default is 'cluster'. 'normal' mode use current thread to run task, you can use this mode to mange the tasks
 
 **Note:** A running task means that a normal method is not returned or a promise is not triggered.
 
 ### TaskPool.init(timeout)
 wait until pool init end. You don't need to call this function unless you want your task to be executed immediately after call dispatch at the first time
-- `timeout` :  integer The max time to wait in second. default is infinite.
-- `return` : promise Wait until pool init end, or catch the timeout error
+- `timeout` :  <integer> The max time to wait in second. default is infinite.
+- `return` : <promise> Wait until pool init end, or catch the timeout error
 
 ### TaskPool.dispatch(file, ...args)
 dispatch a task, the tasks will add to the queue until any worker can run the task
-- `file` :  string Javascript absolute file path, it should export a function which accept two parameter, method(id, ...args), id for the worker id, args for the args input
+- `file` :  <string|function> Javascript absolute file path that will export a function or a function(only normal mode support function type), the function accept two parameter, method(id, ...args), id for the worker id, args for the args input
 - `args` : A list of args which will be trans to the method of the js file
-- `return` : promise<any> You can use this to get task return data
+- `return` : <promise<any>> You can use this to get task return data
 
 ### TaskPool.wait(timeout)
 wait until all the tasks run end
-- `timeout` :  integer The max time to wait in second. default is infinite.
-- `return` : promise Wait tasks run end, or catch the timeout error
+- `timeout` :  <integer> The max time to wait in second. default is infinite.
+- `return` : <promise> Wait tasks run end, or catch the timeout error
 
 ### TaskPool.waitCanRun(timeout)
 wait until running tasks count less than maxRunningTask and zero task in queue, so task the next dispatch task can run immediately
-- `timeout` :  integer The max time to wait in second. default is infinite.
-- `return` : promise Wait task can run immediately, or catch the timeout error
+- `timeout` :  <integer> The max time to wait in second. default is infinite.
+- `return` : <promise> Wait task can run immediately, or catch the timeout error
 
 **Note:** If there are a list of waiters , just one waiter can wakeup at one time.
 
 ### TaskPool.cancel(timeout)
 cancel the tasks which are not running, and wait until all the running tasks run end
-- `timeout` :  integer The max time to wait in second. default is infinite.
-- `return` : promise Wait cancel run end, or catch the timeout error
+- `timeout` :  <integer> The max time to wait in second. default is infinite.
+- `return` : <promise> Wait cancel run end, or catch the timeout error
 
 ### TaskPool.terminate(timeout)
 terminate all the workers, thread or cluster will be killed
-- `timeout` :  integer The max time to wait in second. default is infinite.
-- `return` : promise Wait terminate run end, or catch the timeout error
+- `timeout` :  <integer> The max time to wait in second. default is infinite.
+- `return` : <promise> Wait terminate run end, or catch the timeout error
 
 ### TaskPool.start()
 start the task pool workers. You can call TaskPool.init(timeout) function to wait the start end. Unless you call the terminate function, otherwise it will take no effect when you call this function

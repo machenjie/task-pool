@@ -10,11 +10,17 @@ process.on('message', task => {
     process.send(new Result(Msg.MSG_RUN_RESULT, result, undefined, task.msgID, cluster.worker.id));
   };
   const postErrorMessage = error => {
-    process.send(new Result(Msg.MSG_RUN_ERROR, undefined, error.toString() + error.stack, task.msgID, cluster.worker.id));
+    process.send(new Result(Msg.MSG_RUN_ERROR, undefined, error.toString() + '\n' + error.stack, task.msgID, cluster.worker.id));
   };
 
   try {
-    const method = require(task.file);
+    let method;
+    if (typeof task.file === 'string') {
+      method = require(task.file);
+    } else {
+      postErrorMessage(new Error('unknown task function type!'));
+      return;
+    }
     const result = method(cluster.worker.id, ...task.args);
 
     if (isPromise(result)) {

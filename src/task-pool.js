@@ -118,9 +118,12 @@ class TaskPool {
     if (this.maxRunningTask && this.workers.runningTasksCount >= this.maxRunningTask) {
       return;
     }
-    if (this.workers.sendTask(this.queue[0])) {
-      this.queue.shift();
+
+    const task = this.queue.shift();
+    if (this.workers.sendTask(task)) {
       this._next();
+    } else {
+      this.queue.splice(0, 0, task);
     }
   }
 

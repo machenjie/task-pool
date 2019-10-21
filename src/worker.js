@@ -25,21 +25,9 @@ class Worker {
 
       worker = new Worker(new ThreadWorker(path.resolve(__dirname, 'thread-worker-task.js')), type, exitCB, errorCB, disconnectCB, messageCB, onlineCB);
     } else if (type === WorkerType.WORKER_TYPE_NORMAL) {
-      const { EventEmitter } = require('events');
-      const normalWorkerTask = require('./normal-worker-task');
+      const NormalWorker = require('./normal-worker');
 
-      const normalWorker = new EventEmitter();
-      normalWorkerTask(normalWorker);
-      normalWorker.postMessage = value => {
-        normalWorker.emit('task', value);
-      };
-      normalWorker.terminate = () => {
-        normalWorker.emit('exit', 1);
-      };
-      worker = new Worker(normalWorker, type, exitCB, errorCB, disconnectCB, messageCB, onlineCB);
-      process.nextTick(() => {
-        normalWorker.emit('online');
-      });
+      worker = new Worker(new NormalWorker(), type, exitCB, errorCB, disconnectCB, messageCB, onlineCB);
     }
     return worker;
   }

@@ -36,6 +36,24 @@ async function testNormalPool() {
   }
 }
 
+async function testNormalPoolWithFunctionTask() {
+  const taskPool = new TaskPool(2, 5, 'normal');
+  for (let i = 0; i < 20; i++) {
+    taskPool.dispatch(async (id, v) => {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          console.log('worker', id, ': data', v);
+          resolve(v);
+        }, 1000);
+      });
+    }, i).then(v => {
+      console.log('main: data ', v);
+    }).catch(e => {
+      console.log('error:', e);
+    });
+  }
+}
+
 async function testThreadPoolTerminate() {
   const taskPool = new TaskPool(2, 5, 'thread');
   for (let i = 0; i < 25; i++) {
@@ -197,4 +215,4 @@ async function testTaskPoolTasksCancel() {
   console.log('tasks all cancel!');
 }
 
-testClusterPool();
+testThreadPool();
