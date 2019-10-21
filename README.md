@@ -53,6 +53,8 @@ the constructor, after you call this, task pool are ready
 - `maxRunningTask` : integer Max running tasks of all threads. 0 for unlimited. default is 0
 - `type` :  string Type of task pool mode, support 'cluster' and 'thread'. default is cluster
 
+**Note:** A running task means that a normal method is not returned or a promise is not triggered.
+
 ### TaskPool.init(timeout)
 wait until pool init end. You don't need to call this function unless you want your task to be executed immediately after call dispatch at the first time
 - `timeout` :  integer The max time to wait in second. default is infinite.
