@@ -19,6 +19,7 @@ class TaskPool {
     this.queue = [];
     this.canceling = false;
     this.waitingWN = new WaitNotify();
+    this.waitingCanRunWN = new WaitNotify();
     this.resultEE = new EventEmitter();
     this.isInit = false;
     this.isIniting = false;
@@ -65,6 +66,13 @@ class TaskPool {
     await this.waitingWN.wait(timeout);
   }
 
+  async waitCanRun(timeout = 0) {
+    if (this.workers.runningTasksCount < this.maxRunningTask && this.queue.length === 0) {
+      return;
+    }
+    await this.waitingCanRunWN.wait(timeout);
+  }
+
   async terminate(timeout = 0) {
     await this.init(timeout);
     if (this.isInit) {
@@ -75,6 +83,7 @@ class TaskPool {
       this.workers.terminate();
       this.workers = new Workers();
       this.waitingWN.notify();
+      this.waitingCanRunWN.notify();
       this.canceling = false;
     }
   }
@@ -137,6 +146,9 @@ class TaskPool {
     if (this.workers.runningTasksCount === 0 && this.queue.length === 0) {
       this.waitingWN.notify();
     }
+    if (this.workers.runningTasksCount < this.maxRunningTask && this.queue.length === 0) {
+      this.waitingCanRunWN.notify();
+    }
     this._next();
   }
 
@@ -157,6 +169,9 @@ class TaskPool {
       worker.receiveResult(result);
       if (this.workers.runningTasksCount === 0 && this.queue.length === 0) {
         this.waitingWN.notify();
+      }
+      if (this.workers.runningTasksCount < this.maxRunningTask && this.queue.length === 0) {
+        this.waitingCanRunWN.notify();
       }
       this._next();
     }

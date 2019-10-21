@@ -123,6 +123,19 @@ async function testTaskPoolTasksWait() {
   console.log('tasks all run end!');
 }
 
+async function testTaskPoolTasksWaitCanRun() {
+  const taskPool = new TaskPool(2, 4, 'thread');
+  for (let i = 0; i < 10; i++) {
+    await taskPool.waitCanRun();
+    console.log((new Date()).toISOString(), 'send next task!');
+    taskPool.dispatch(path.resolve(__dirname, 'thread-task.js'), i).then(v => {
+      console.log('main: data ', v);
+    }).catch(e => {
+      console.log('error:', e);
+    });
+  }
+}
+
 async function testTaskPoolTasksCancel() {
   const taskPool = new TaskPool(2, 10, 'thread');
   for (let i = 0; i < 25; i++) {
@@ -140,4 +153,4 @@ async function testTaskPoolTasksCancel() {
   console.log('tasks all cancel!');
 }
 
-testThreadPool();
+testTaskPoolTasksWaitCanRun();

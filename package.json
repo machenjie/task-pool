@@ -1,6 +1,6 @@
 {
   "name": "@mcjxy/task-pool",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Easy way to manage a pool of workers, both support cluster mode and thread mode.",
   "main": "index.js",
   "scripts": {
