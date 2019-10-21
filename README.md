@@ -72,7 +72,7 @@ wait until all the tasks run end
 - `return` : promise Wait tasks run end, or catch the timeout error
 
 ### TaskPool.waitCanRun(timeout)
-wait until running tasks less than maxRunningTask and not task in queue, so the task next dispatch can run immediately
+wait until running tasks count less than maxRunningTask and zero task in queue, so task the next dispatch task can run immediately
 - `timeout` :  integer The max time to wait in second. default is infinite.
 - `return` : promise Wait task can run immediately, or catch the timeout error
 
