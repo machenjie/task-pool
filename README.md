@@ -1,10 +1,14 @@
 # task-pool
-Pool to run tasks, support cluster mode and thread mode!
+Pool to run tasks, support cluster mode, thread mode and the normal mode which run tasks in the current thread!
 
 If need to use thread mode, please use the **--experimental-worker** flag to run correctly, since this resource still experimental in NodeJs.
 
 ## Introduction
-If you want to run tasks in pool, you need this.
+If you want to run tasks in pool, you need this. 
+
+Cluster mode and thread mode can help you run out of your computer resource, normal mode can help you mange your tasks.
+
+You can mixed use these mode to get something powerful.
 
 ## Prerequisites
 * [NodeJs](https://nodejs.org/en/) (v 10.15.0 or later)
@@ -42,16 +46,16 @@ const taskPool = new TaskPool(9, 200);
   console.log('end cancel', (new Date()).toISOString());
 })();
 ```
-Note: In thread mode, if the thread count is more than 10, after you use the console.log in every thread, you will get a warnning: (node:9768) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 error listeners added. Use emitter.setMaxListeners() to increase limit. You can add "--trace-warnings" start option to check more information.
+Note: In thread mode, if the thread count is more than 10, after you use the console.log in every thread, you will get a warning: (node:9768) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 error listeners added. Use "emitter.setMaxListeners()" to increase limit. You can add "--trace-warnings" start option to check more information. So be careful of using "console.log" when your thread is more than 9.
 
-Note: In thread mode, each thread has a separate global data
+Note: In thread mode and cluster mode, each thread or cluster has a separate global data, but tasks in the same thread or cluster can share the global data.
 ## API
 
 ### TaskPool(workerNum, maxRunningTask, type)
 the constructor, after you call this, task pool are ready
 - `workerNum` :  integer Worker number of the pool. default is cpu number
 - `maxRunningTask` : integer Max running tasks of all threads. 0 for unlimited. default is 0
-- `type` :  string Type of task pool mode, support 'cluster' and 'thread'. default is cluster
+- `type` :  string Type of task pool mode, support 'cluster', 'thread' and 'normal''. default is 'cluster'. 'normal' mode use current thread to run task, you can use this mode to mange the tasks
 
 **Note:** A running task means that a normal method is not returned or a promise is not triggered.
 

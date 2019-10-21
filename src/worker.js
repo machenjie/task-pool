@@ -1,11 +1,11 @@
 'use strict';
 
-const cluster = require('cluster');
 const path = require('path');
 
 const WorkerType = {
   WORKER_TYPE_CLUSTER: 'cluster',
   WORKER_TYPE_THREAD: 'thread',
+  WORKER_TYPE_NORMAL: 'normal',
 };
 
 class Worker {
@@ -13,6 +13,8 @@ class Worker {
     let worker;
 
     if (type === WorkerType.WORKER_TYPE_CLUSTER) {
+      const cluster = require('cluster');
+
       cluster.setupMaster({
         exec: path.resolve(__dirname, 'cluster-worker-task.js'),
         silent: true,
@@ -20,7 +22,24 @@ class Worker {
       worker = new Worker(cluster.fork(), type, exitCB, errorCB, disconnectCB, messageCB, onlineCB);
     } else if (type === WorkerType.WORKER_TYPE_THREAD) {
       const ThreadWorker = require('worker_threads').Worker;
+
       worker = new Worker(new ThreadWorker(path.resolve(__dirname, 'thread-worker-task.js')), type, exitCB, errorCB, disconnectCB, messageCB, onlineCB);
+    } else if (type === WorkerType.WORKER_TYPE_NORMAL) {
+      const { EventEmitter } = require('events');
+      const normalWorkerTask = require('./normal-worker-task');
+
+      const normalWorker = new EventEmitter();
+      normalWorkerTask(normalWorker);
+      normalWorker.postMessage = value => {
+        normalWorker.emit('task', value);
+      };
+      normalWorker.terminate = () => {
+        normalWorker.emit('exit', 1);
+      };
+      worker = new Worker(normalWorker, type, exitCB, errorCB, disconnectCB, messageCB, onlineCB);
+      process.nextTick(() => {
+        normalWorker.emit('online');
+      });
     }
     return worker;
   }
@@ -48,6 +67,8 @@ class Worker {
       return this._worker.id;
     } else if (this._type === WorkerType.WORKER_TYPE_THREAD) {
       return this._worker.threadId;
+    } else if (this._type === WorkerType.WORKER_TYPE_NORMAL) {
+      return this._worker.id;
     }
   }
 
@@ -64,6 +85,8 @@ class Worker {
       if (this._type === WorkerType.WORKER_TYPE_CLUSTER) {
         this._worker.send(task);
       } else if (this._type === WorkerType.WORKER_TYPE_THREAD) {
+        this._worker.postMessage(task);
+      } else if (this._type === WorkerType.WORKER_TYPE_NORMAL) {
         this._worker.postMessage(task);
       }
       this._runningTasks.push(task);
@@ -84,6 +107,8 @@ class Worker {
       if (this._type === WorkerType.WORKER_TYPE_CLUSTER) {
         this._worker.kill();
       } else if (this._type === WorkerType.WORKER_TYPE_THREAD) {
+        this._worker.terminate();
+      } else if (this._type === WorkerType.WORKER_TYPE_NORMAL) {
         this._worker.terminate();
       }
       const runningTasks = this._runningTasks;

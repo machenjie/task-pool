@@ -25,6 +25,17 @@ async function testClusterPool() {
   }
 }
 
+async function testNormalPool() {
+  const taskPool = new TaskPool(2, 5, 'normal');
+  for (let i = 0; i < 10; i++) {
+    taskPool.dispatch(path.resolve(__dirname, 'thread-task.js'), i).then(v => {
+      console.log('main: data ', v);
+    }).catch(e => {
+      console.log('error:', e);
+    });
+  }
+}
+
 async function testThreadPoolTerminate() {
   const taskPool = new TaskPool(2, 5, 'thread');
   for (let i = 0; i < 25; i++) {
@@ -45,6 +56,22 @@ async function testClusterPoolTerminate() {
   const taskPool = new TaskPool(2, 10, 'cluster');
   for (let i = 0; i < 20; i++) {
     taskPool.dispatch(path.resolve(__dirname, 'cluster-task.js'), i).then(v => {
+      console.log('main: data ', v);
+    }).catch(e => {
+      console.log('error:', e);
+    });
+  }
+  taskPool.terminate(10).catch(e => {
+    console.log('terminate error:', e);
+  });
+  await taskPool.terminate();
+  console.log('terminate success!');
+}
+
+async function testNormalPoolTerminate() {
+  const taskPool = new TaskPool(2, 5, 'normal');
+  for (let i = 0; i < 20; i++) {
+    taskPool.dispatch(path.resolve(__dirname, 'thread-task.js'), i).then(v => {
       console.log('main: data ', v);
     }).catch(e => {
       console.log('error:', e);
@@ -84,6 +111,23 @@ async function testClusterPoolTerminateStart() {
   taskPool.start();
   for (let i = 0; i < 10; i++) {
     taskPool.dispatch(path.resolve(__dirname, 'cluster-task.js'), i).then(v => {
+      console.log('main: data ', v);
+    }).catch(e => {
+      console.log('error:', e);
+    });
+  }
+}
+
+async function testNormalPoolTerminateStart() {
+  const taskPool = new TaskPool(2, 5, 'normal');
+  taskPool.terminate(20).catch(e => {
+    console.log('terminate error:', e);
+  });
+  await taskPool.terminate();
+  console.log('terminate success!!');
+  taskPool.start();
+  for (let i = 0; i < 30; i++) {
+    taskPool.dispatch(path.resolve(__dirname, 'thread-task.js'), i).then(v => {
       console.log('main: data ', v);
     }).catch(e => {
       console.log('error:', e);
@@ -153,4 +197,4 @@ async function testTaskPoolTasksCancel() {
   console.log('tasks all cancel!');
 }
 
-testThreadPool();
+testClusterPool();
