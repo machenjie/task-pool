@@ -76,6 +76,8 @@ wait until running tasks count less than maxRunningTask and zero task in queue, 
 - `timeout` :  integer The max time to wait in second. default is infinite.
 - `return` : promise Wait task can run immediately, or catch the timeout error
 
+**Note:** If there are a list of waiters , just one waiter can wakeup at one time.
+
 ### TaskPool.cancel(timeout)
 cancel the tasks which are not running, and wait until all the running tasks run end
 - `timeout` :  integer The max time to wait in second. default is infinite.

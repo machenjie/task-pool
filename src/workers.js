@@ -1,8 +1,18 @@
 'use strict';
 
+const Worker = require('./worker');
+
 class Workers {
-  constructor() {
+  constructor(workerNum, type, exitCB, errorCB, disconnectCB, messageCB, onlineCB) {
     this._workers = [];
+    this._workerNum = workerNum;
+    this._type = type;
+    this._exitCB = exitCB;
+    this._errorCB = errorCB;
+    this._disconnectCB = disconnectCB;
+    this._messageCB = messageCB;
+    this._onlineCB = onlineCB;
+    this.start();
   }
 
   get count() {
@@ -13,11 +23,33 @@ class Workers {
     return this._workers.reduce((accumulator, currentValue) => accumulator + currentValue.runningTasksCount, 0);
   }
 
-  addWorker(worker) {
+  start() {
+    for (let index = 0; index < this._workerNum; index++) {
+      const worker = Worker.spawn(this._type
+        , () => {
+          const removeRunningTasks = this._removeWorker(worker.id);
+          this._exitCB(removeRunningTasks);
+        }, () => {
+          const removeRunningTasks = this._removeWorker(worker.id);
+          this._errorCB(removeRunningTasks);
+        }, () => {
+          const removeRunningTasks = this._removeWorker(worker.id);
+          this._disconnectCB(removeRunningTasks);
+        }, result => {
+          worker.receiveResult(result);
+          this._messageCB(result);
+        }, () => {
+          this._addWorker(worker);
+          this._onlineCB();
+        });
+    }
+  }
+
+  _addWorker(worker) {
     this._workers.push(worker);
   }
 
-  removeWorker(workerID) {
+  _removeWorker(workerID) {
     const workerIndex = this._workers.findIndex(worker => worker.id === workerID);
     if (workerIndex !== -1) {
       const removeRunningTasks = this._workers[workerIndex].runningTasks;
@@ -27,18 +59,11 @@ class Workers {
     return [];
   }
 
-  getWorkerByID(workerID) {
-    const workerIndex = this._workers.findIndex(worker => worker.id === workerID);
-    if (workerIndex !== -1) {
-      return this._workers[workerIndex];
-    }
-  }
-
-  getFreeWorker() {
+  _getFreeWorker() {
     if (this.count) {
       let workerIndex = 0;
       for (let index = 1; index < this.count; index++) {
-        if (this._workers[index].count < this._workers[workerIndex].count) {
+        if (this._workers[index].runningTasksCount < this._workers[workerIndex].runningTasksCount) {
           workerIndex = index;
         }
       }
@@ -47,9 +72,22 @@ class Workers {
   }
 
   terminate() {
+    let removeRunningTasks = [];
     for (const worker of this._workers) {
-      worker.terminate();
+      removeRunningTasks = removeRunningTasks.concat(worker.terminate());
     }
+    this._workers = [];
+    return removeRunningTasks;
+  }
+
+  sendTask(task) {
+    const worker = this._getFreeWorker();
+    if (worker) {
+      task.workerID = worker.id;
+      worker.sendTask(task);
+      return true;
+    }
+    return false;
   }
 }
 

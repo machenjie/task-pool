@@ -5,7 +5,7 @@ const path = require('path');
 
 async function testThreadPool() {
   const taskPool = new TaskPool(2, 10, 'thread');
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 30; i++) {
     taskPool.dispatch(path.resolve(__dirname, 'thread-task.js'), i).then(v => {
       console.log('main: data ', v);
     }).catch(e => {
@@ -27,7 +27,7 @@ async function testClusterPool() {
 
 async function testThreadPoolTerminate() {
   const taskPool = new TaskPool(2, 5, 'thread');
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 25; i++) {
     taskPool.dispatch(path.resolve(__dirname, 'thread-task.js'), i).then(v => {
       console.log('main: data ', v);
     }).catch(e => {
@@ -93,7 +93,7 @@ async function testClusterPoolTerminateStart() {
 
 async function testTaskPoolInitWait() {
   const taskPool = new TaskPool(2, 10, 'thread');
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 35; i++) {
     taskPool.dispatch(path.resolve(__dirname, 'thread-task.js'), i).then(v => {
       console.log('main: data ', v);
     }).catch(e => {
@@ -109,7 +109,7 @@ async function testTaskPoolInitWait() {
 
 async function testTaskPoolTasksWait() {
   const taskPool = new TaskPool(2, 10, 'thread');
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 20; i++) {
     taskPool.dispatch(path.resolve(__dirname, 'thread-task.js'), i).then(v => {
       console.log('main: data ', v);
     }).catch(e => {
@@ -153,4 +153,4 @@ async function testTaskPoolTasksCancel() {
   console.log('tasks all cancel!');
 }
 
-testTaskPoolTasksWaitCanRun();
+testThreadPool();
