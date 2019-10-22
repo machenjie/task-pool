@@ -1,5 +1,5 @@
 # task-pool
-Easy way to manage a pool of workers, support cluster mode, thread mode and normal mode that will run tasks in the current thread!
+Easy way to manage a pool of workers, support cluster mode that will run tasks in different process, thread mode that will run tasks in different thread and normal mode that will run tasks in the current thread!
 
 If need to use thread mode, please use the **--experimental-worker** flag to run correctly, since this resource still experimental in NodeJs.
 
