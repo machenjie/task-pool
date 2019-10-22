@@ -1,7 +1,7 @@
 {
   "name": "@mcjxy/task-pool",
-  "version": "1.1.1",
-  "description": "Easy way to manage a pool of workers, both support cluster mode and thread mode.",
+  "version": "1.1.2",
+  "description": "Easy way to manage a pool of workers, support cluster mode, thread mode and the normal mode which run tasks in the current thread!",
   "main": "index.js",
   "scripts": {
     "test": "node --experimental-worker ./test/test.js"
