@@ -61,7 +61,7 @@ the constructor, after you call this, task pool are ready
 
 ### TaskPool.init(timeout)
 wait until pool init end. You don't need to call this function unless you want your task to be executed immediately after call dispatch at the first time
-- `timeout` :  <integer> The max time to wait in second. default is infinite.
+- `timeout` :  <integer> The max time to wait in millisecond. default is infinite.
 - `return` : <promise> Wait until pool init end, or catch the timeout error
 
 ### TaskPool.dispatch(file, ...args)
@@ -80,24 +80,24 @@ get the status of the task pool.
 
 ### TaskPool.wait(timeout)
 wait until all the tasks run end
-- `timeout` :  <integer> The max time to wait in second. default is infinite.
+- `timeout` :  <integer> The max time to wait in millisecond. default is infinite.
 - `return` : <promise> Wait tasks run end, or catch the timeout error
 
 ### TaskPool.waitCanRun(timeout)
 wait until running tasks count less than maxRunningTask and zero task in queue, so task the next dispatch task can run immediately
-- `timeout` :  <integer> The max time to wait in second. default is infinite.
+- `timeout` :  <integer> The max time to wait in millisecond. default is infinite.
 - `return` : <promise> Wait task can run immediately, or catch the timeout error
 
 **Note:** If there are a list of waiters , just one waiter can wakeup at one time.
 
 ### TaskPool.cancel(timeout)
 cancel the tasks which are not running, and wait until all the running tasks run end
-- `timeout` :  <integer> The max time to wait in second. default is infinite.
+- `timeout` :  <integer> The max time to wait in millisecond. default is infinite.
 - `return` : <promise> Wait cancel run end, or catch the timeout error
 
 ### TaskPool.terminate(timeout)
 terminate all the workers, thread or cluster will be killed
-- `timeout` :  <integer> The max time to wait in second. default is infinite.
+- `timeout` :  <integer> The max time to wait in millisecond. default is infinite.
 - `return` : <promise> Wait terminate run end, or catch the timeout error
 
 ### TaskPool.start()
