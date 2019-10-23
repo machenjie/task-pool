@@ -70,6 +70,14 @@ dispatch a task, the tasks will add to the queue until any worker can run the ta
 - `args` : A list of args which will be trans to the method of the js file
 - `return` : <promise<any>> You can use this to get task return data
 
+### TaskPool.status()
+get the status of the task pool.
+- `return` : < object > Follow is the key of the object
+    - `queue` : <integer> tasks number need to be send to worker,
+    - `running` :  <integer> tasks number running in all workers,
+    - `workers` :  <integer> workers count,
+    - `runningPerWorker` :  <array[integer]> tasks number running in each worker,
+
 ### TaskPool.wait(timeout)
 wait until all the tasks run end
 - `timeout` :  <integer> The max time to wait in second. default is infinite.

@@ -23,6 +23,10 @@ class Workers {
     return this._workers.reduce((accumulator, currentValue) => accumulator + currentValue.runningTasksCount, 0);
   }
 
+  get runningTasksCountPerWorker() {
+    return this._workers.map(worker => worker.runningTasksCount);
+  }
+
   start() {
     for (let index = 0; index < this._workerNum; index++) {
       const worker = Worker.spawn(this._type

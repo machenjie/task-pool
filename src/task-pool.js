@@ -108,6 +108,15 @@ class TaskPool {
     }
   }
 
+  status() {
+    return {
+      queue: this.queue.length,
+      running: this.workers ? this.workers.runningTasksCount : 0,
+      workers: this.workers ? this.workers.count : 0,
+      runningPerWorker: this.workers ? this.workers.runningTasksCountPerWorker : 0,
+    };
+  }
+
   _next() {
     if (!this.isInit) {
       return;

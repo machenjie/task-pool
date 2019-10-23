@@ -12,7 +12,11 @@ module.exports = async (id, data) => {
       } catch (e) {
         reject(e);
       }
-      resolve(data);
+      if (parseInt('0' + data) % 2 === 1) {
+        reject(new Error(data));
+      } else {
+        resolve(data);
+      }
     }, 1000);
   });
 };
