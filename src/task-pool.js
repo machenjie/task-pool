@@ -23,6 +23,11 @@ class TaskPool {
     this.isInit = false;
     this.isIniting = false;
     this.initWN = new WaitNotify();
+    this.runStatus = {
+      runEnd: 0,
+      runSuccess: 0,
+      runFailed: 0,
+    };
     this.start();
   }
 
@@ -40,6 +45,8 @@ class TaskPool {
     this.queue.push(new Task(file, args, msgID));
     const resultPromise = new Promise((resolve, reject) => {
       this.resultEE.once(msgID, result => {
+        this.runStatus.runEnd++;
+        result.msgType === Msg.MSG_RUN_ERROR ? this.runStatus.runFailed++ : this.runStatus.runSuccess++;
         result.msgType === Msg.MSG_RUN_ERROR ? reject(result.error) : resolve(result.result);
       });
     });
@@ -114,6 +121,9 @@ class TaskPool {
       running: this.workers ? this.workers.runningTasksCount : 0,
       workers: this.workers ? this.workers.count : 0,
       runningPerWorker: this.workers ? this.workers.runningTasksCountPerWorker : 0,
+      runEnd: this.runStatus.runEnd,
+      runSuccess: this.runStatus.runSuccess,
+      runFailed: this.runStatus.runFailed,
     };
   }
 

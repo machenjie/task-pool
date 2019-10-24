@@ -77,7 +77,10 @@ get the status of the task pool.
     - `running` :  <integer> tasks number running in all workers,
     - `workers` :  <integer> workers count,
     - `runningPerWorker` :  <array[integer]> tasks number running in each worker,
-
+    - `runEnd` :  <integer> tasks number run end,
+    - `runSuccess` :  <integer> tasks number run success,
+    - `runFailed` :  <integer> tasks number run failed,
+ 
 ### TaskPool.wait(timeout)
 wait until all the tasks run end
 - `timeout` :  <integer> The max time to wait in millisecond. default is infinite.
