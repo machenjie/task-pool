@@ -74,7 +74,7 @@ class TaskPool {
   }
 
   async waitCanRun(timeout = 0) {
-    if (this.workers && this.workers.count && this.workers.runningTasksCount < this.maxRunningTask && this.queue.length === 0) {
+    if (this.workers && this.workers.count && (!this.maxRunningTask || this.workers.runningTasksCount <= this.maxRunningTask && this.queue.length < this.maxRunningTask)) {
       return;
     }
     await this.waitingCanRunWN.wait(timeout);
@@ -180,7 +180,7 @@ class TaskPool {
     if (!this.workers || this.workers.runningTasksCount === 0 && this.queue.length === 0) {
       this.waitingWN.notify();
     }
-    if (this.workers && this.workers.count && this.workers.runningTasksCount < this.maxRunningTask && this.queue.length === 0) {
+    if (this.workers && this.workers.count && (!this.maxRunningTask || this.workers.runningTasksCount <= this.maxRunningTask && this.queue.length < this.maxRunningTask)) {
       this.waitingCanRunWN.notifyOne();
     }
   }
